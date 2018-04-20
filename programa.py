@@ -2,6 +2,7 @@ import json
 import pyodbc
 import urllib.parse
 import requests
+import csv
 from classes import proveedor
 from classes import proveedorPce
 from datetime import datetime
@@ -49,13 +50,10 @@ def main():
         response_pce = requests.post(endpoint_pce.format(rut_empresa=p.rut), data=data_pce, headers=headers_pce)
         if (response_pce.ok):
             provPce = json.loads(response_pce.text, object_hook=proveedorPce)            
-            print(json_proveedor_pce)
         else:
             print(response_pce.text)
 
 def procesaProveedor(proveedor):
     pass
-
-
 
 main()

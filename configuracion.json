@@ -36,5 +36,43 @@
                 "Contrasenna":"1234"
             }
         }
+    },
+    "file_struct":
+    {
+        "columns":
+        {
+            "query":
+            [
+                "rutProveedor",
+                "cantidad",
+                "Tramo Ventas",
+                "Numero Trabajadores",
+                "Rubro",
+                "Subrubro",
+                "Actividad Economica",
+                "Region",
+                "Comuna",
+                "Calle",
+                "Numero",
+                "Bloque",
+                "Villa/Poblacion",
+                "Fecha Inicio",
+                "Fecha Termino Giro",
+                "Tipo Termino Giro",
+                "Tipo Contribuyente",
+                "SubTipoContribuyente",
+                "F22 C 645",
+                "F22 C 646",
+                "FechaResolucion",
+                "NumResolucion",
+                "MailIntercambio"
+            ],
+            "api":
+            [
+                {
+                    "":""
+                }
+            ]
+        }
     }
 }
