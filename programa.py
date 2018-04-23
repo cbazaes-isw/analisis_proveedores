@@ -1,17 +1,25 @@
+# pylint: disable=C0103
+"""
+DOCSTRING
+"""
+
 import json
+from datetime import datetime
 import pyodbc
-import urllib.parse
 import requests
 import csv
 from classes import proveedor
 from classes import proveedorPce
-from datetime import datetime
 
 
 def main():
+    """
+    DOCSTRING
+    """
     # Configuracion
     config_file = open("configuracion.json", "r")
     config = json.load(config_file)
+    config_file.close()
 
     connection_string = config["db"]["connection_string"]
     path_query_file = config["db"]["query_file"]
@@ -35,8 +43,8 @@ def main():
     results = cursor.fetchone()
     while results:
         proveedores.append(proveedor(
-            rut = results[0],
-            cantidad = results[1]
+            rut=results[0],
+            cantidad=results[1]
         ))
 
         results = cursor.fetchone()
@@ -46,14 +54,28 @@ def main():
     # Revisando la información
     print("{} Procesando los proveedores...".format(str(datetime.now())))
     #for c in clientes:
-    for p in proveedores:
-        response_pce = requests.post(endpoint_pce.format(rut_empresa=p.rut), data=data_pce, headers=headers_pce)
-        if (response_pce.ok):
-            provPce = json.loads(response_pce.text, object_hook=proveedorPce)            
+    for pBd in proveedores:
+        response_pce = requests.post(
+            endpoint_pce.format(rut_empresa=pBd.rut),
+            data=data_pce,
+            headers=headers_pce)
+        if response_pce.ok:
+            pPce = json.loads(response_pce.text, object_hook=proveedorPce)
+            procesaProveedor(pPce, pBd)
         else:
             print(response_pce.text)
 
-def procesaProveedor(proveedor):
-    pass
+def procesaProveedor(pBd, pPce):
+    """
+    DOCSTRING
+    """
+    formato = ("{rutProveedor},{cantidad},{Tramo_Ventas},{Numero_Trabajadores},{Rubro}," +
+               "{Subrubro},{Actividad_Economica},{Region},{Comuna},{Calle},{Numero},{Bloque}," +
+               "{Villa_Poblacion},{Fecha_Inicio},{Fecha_Termino_Giro},{Tipo_Termino_Giro}," +
+               "{Tipo_Contribuyente},{SubTipoContribuyente},{F22_C_645},{F22_C_646}," +
+               "{FechaResolucion},{NumResolucion},{MailIntercambio}")
+
+
+
 
 main()
