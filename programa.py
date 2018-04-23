@@ -3,14 +3,15 @@
 Análisis de proveedores
 """
 
+import csv
 import json
 from datetime import datetime
-import pyodbc
+
 import requests
-import csv
-from classes import proveedor
-from classes import proveedorPce
-from classes import proveedorBd
+
+import pyodbc
+from classes import proveedor, proveedorBd, proveedorPce
+
 
 def main():
     """
