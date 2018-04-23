@@ -60,6 +60,9 @@
   * [17] [SubTipoContribuyente]
   * [18] [F22 C 645]
   * [19] [F22 C 646]
+  * [20] [FechaResolucion]
+  * [21] [NumResolucion]
+  * [22] [MailIntercambio]
   * 
 ****/
 select 
