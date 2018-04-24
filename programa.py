@@ -10,7 +10,7 @@ from datetime import datetime
 import requests
 
 import pyodbc
-from classes import proveedor, proveedorBd, proveedorPce
+from classes import proveedorBd, proveedorPce
 
 
 def main():
@@ -50,7 +50,7 @@ def main():
             data=json.dumps(config["api"]["pce"]["request_body"]),
             headers=config["api"]["pce"]["request_header"])
         if response_pce.ok:
-            pPce = json.loads(response_pce.text, object_hook=proveedorPce)
+            pPce = proveedorPce(response_pce.json())
             procesaProveedor(pDict[p], pPce)
         else:
             print(response_pce.text)
