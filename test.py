@@ -1,37 +1,17 @@
-from classes import ActecoPce
+from datetime import datetime
 
-lista_Actecos =[
-    {
-        "Codigo": "345",
-        "Nombre": "sample string 2",
-        "AffectoIva": "sample string 3"
-    },
-    {
-        "Codigo": "759",
-        "Nombre": "sample string 2",
-        "AffectoIva": "sample string 3"
-    },
-    {
-        "Codigo": "138",
-        "Nombre": "sample string 2",
-        "AffectoIva": "sample string 3"
-    },
-    {
-        "Codigo": "486",
-        "Nombre": "sample string 2",
-        "AffectoIva": "sample string 3"
-    },
-    {
-        "Codigo": "645",
-        "Nombre": "sample string 2",
-        "AffectoIva": "sample string 3"
-    },
-    {
-        "Codigo": "598",
-        "Nombre": "sample string 2",
-        "AffectoIva": "sample string 3"
-    }
-]
+class ClaseDePrueba(object):
 
-actecos = list(map(lambda x: ActecoPce(x), lista_Actecos))
-resultado = "|".join(map(lambda x: x.Codigo, sorted(actecos)))
+    def getDatetime(self):
+        return datetime.now()
+
+    def __init__(self, param1):
+        self.param1 = param1
+        self.thisDatetime = self.getDatetime()
+
+
+o = ClaseDePrueba("algun_valor")
+
+print(o.getDatetime())
+print(o.param1)
+print("{o.param1} {o.thisDatetime}".format(o=o))

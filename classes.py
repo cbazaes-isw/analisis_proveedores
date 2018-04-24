@@ -39,6 +39,9 @@ class proveedorPce:
         self.Actecos = list(map(lambda x: ActecoPce(x), dict["Actecos"]))
         self.DocumentosHomo = list(map(lambda x: TipoDocumentoPce(x), dict["DocumentosHomo"]))
         self.DocumentosProd = list(map(lambda x: TipoDocumentoPce(x), dict["DocumentosProd"]))
+        self.CodigosActecos = self.getCodigosActecos()
+        self.CodigosDocumentosProduccion = self.getCodigosDocumentosProduccion()
+        self.CodigosDocumentosCertificacion = self.getCodigosDocumentosCertificacion()
 
     def __repr__(self):
         return "{}: {} {}".format(self.__class__.__name__, self.RUT, self.RazonSocial)
@@ -61,20 +64,20 @@ class proveedorBd:
         self.cantidad = provBd.cantidad
         self.Tramo_Ventas = provBd.Tramo_Ventas
         self.Numero_Trabajadores = provBd.Numero_Trabajadores
-        self.Rubro = provBd.Rubro.replace(",","")
-        self.Subrubro = provBd.Subrubro.replace(",","")
-        self.Actividad_Economica = provBd.Actividad_Economica.replace(",","")
-        self.Region = provBd.Region.replace(",","")
-        self.Comuna = provBd.Comuna.replace(",","")
-        self.Calle = provBd.Calle.replace(",","")
-        self.Numero = provBd.Numero.replace(",","")
-        self.Bloque = provBd.Bloque.replace(",","")
-        self.Villa_Poblacion = provBd.Villa_Poblacion.replace(",","")
+        self.Rubro = provBd.Rubro
+        self.Subrubro = provBd.Subrubro
+        self.Actividad_Economica = provBd.Actividad_Economica
+        self.Region = provBd.Region
+        self.Comuna = provBd.Comuna
+        self.Calle = provBd.Calle
+        self.Numero = provBd.Numero
+        self.Bloque = provBd.Bloque
+        self.Villa_Poblacion = provBd.Villa_Poblacion
         self.Fecha_Inicio = provBd.Fecha_Inicio
         self.Fecha_Termino_Giro = provBd.Fecha_Termino_Giro
-        self.Tipo_Termino_Giro = provBd.Tipo_Termino_Giro.replace(",","")
-        self.Tipo_Contribuyente = provBd.Tipo_Contribuyente.replace(",","")
-        self.SubTipoContribuyente = provBd.SubTipoContribuyente.replace(",","")
+        self.Tipo_Termino_Giro = provBd.Tipo_Termino_Giro
+        self.Tipo_Contribuyente = provBd.Tipo_Contribuyente
+        self.SubTipoContribuyente = provBd.SubTipoContribuyente
         self.F22_C_645 = provBd.F22_C_645
         self.F22_C_646 = provBd.F22_C_646
         self.FechaResolucion = provBd.FechaResolucion
