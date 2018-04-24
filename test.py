@@ -33,9 +33,5 @@ lista_Actecos =[
     }
 ]
 
-
-from functools import reduce
-
 actecos = list(map(lambda x: ActecoPce(x), lista_Actecos))
-actecos_ordenados = sorted(actecos)
-resultado = reduce(lambda x,y: "{}|{}".format(x.Codigo,y.Codigo), actecos_ordenados)
+resultado = "|".join(map(lambda x: x.Codigo, sorted(actecos)))

@@ -63,7 +63,8 @@ def procesaProveedor(pBd, pPce):
                "{bd.Subrubro},{bd.Actividad_Economica},{bd.Region},{bd.Comuna},{bd.Calle},{bd.Numero},{bd.Bloque}," +
                "{bd.Villa_Poblacion},{bd.Fecha_Inicio},{bd.Fecha_Termino_Giro},{bd.Tipo_Termino_Giro}," +
                "{bd.Tipo_Contribuyente},{bd.SubTipoContribuyente},{bd.F22_C_645},{bd.F22_C_646}," +
-               "{bd.FechaResolucion},{bd.NumResolucion},{bd.MailIntercambio}")
+               "{bd.FechaResolucion},{bd.NumResolucion},{bd.MailIntercambio},"
+               "{pce.getCodigosActecos},{pce.getCodigosDocumentosProduccion}")
     row = formato.format(bd=pBd, pce=pPce)
     i = 1
 

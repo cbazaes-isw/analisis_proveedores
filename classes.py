@@ -43,6 +43,18 @@ class proveedorPce:
     def __repr__(self):
         return "{}: {} {}".format(self.__class__.__name__, self.RUT, self.RazonSocial)
 
+    def getCodigosActecos(self):
+        resultado = "|".join(map(lambda x: x.Codigo, sorted(self.Actecos)))
+        return resultado
+
+    def getCodigosDocumentosProduccion(self):
+        resultado = "|".join(map(lambda x: x.Codigo, sorted(self.DocumentosProd)))
+        return resultado
+
+    def getCodigosDocumentosCertificacion(self):
+        resultado = "|".join(map(lambda x: x.Codigo, sorted(self.DocumentosHomo)))
+        return resultado
+
 class proveedorBd:
     def __init__(self, provBd):
         self.rutProveedor = provBd.rutProveedor
