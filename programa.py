@@ -59,12 +59,12 @@ def procesaProveedor(pBd, pPce):
     """
     procesaProveedores method
     """
-    formato = ("{p.rutProveedor},{p.cantidad},{p.Tramo_Ventas},{p.Numero_Trabajadores},{p.Rubro}," +
-               "{p.Subrubro},{p.Actividad_Economica},{p.Region},{p.Comuna},{p.Calle},{p.Numero},{p.Bloque}," +
-               "{p.Villa_Poblacion},{p.Fecha_Inicio},{p.Fecha_Termino_Giro},{p.Tipo_Termino_Giro}," +
-               "{p.Tipo_Contribuyente},{p.SubTipoContribuyente},{p.F22_C_645},{p.F22_C_646}," +
-               "{p.FechaResolucion},{p.NumResolucion},{p.MailIntercambio}")
-    row = formato.format(p=pBd)
+    formato = ("{bd.rutProveedor},{bd.cantidad},{bd.Tramo_Ventas},{bd.Numero_Trabajadores},{bd.Rubro}," +
+               "{bd.Subrubro},{bd.Actividad_Economica},{bd.Region},{bd.Comuna},{bd.Calle},{bd.Numero},{bd.Bloque}," +
+               "{bd.Villa_Poblacion},{bd.Fecha_Inicio},{bd.Fecha_Termino_Giro},{bd.Tipo_Termino_Giro}," +
+               "{bd.Tipo_Contribuyente},{bd.SubTipoContribuyente},{bd.F22_C_645},{bd.F22_C_646}," +
+               "{bd.FechaResolucion},{bd.NumResolucion},{bd.MailIntercambio}")
+    row = formato.format(bd=pBd, pce=pPce)
     i = 1
 
 main()
