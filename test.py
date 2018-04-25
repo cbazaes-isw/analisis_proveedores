@@ -1,17 +1,20 @@
-from datetime import datetime
+from queue import Queue
+from threading import Thread
 
-class ClaseDePrueba(object):
+def do_stuff(q):
+    while True:
+        print(q.get())
+        q.task_done()
 
-    def getDatetime(self):
-        return datetime.now()
+q = Queue(maxsize=0)
+num_threads = 10
 
-    def __init__(self, param1):
-        self.param1 = param1
-        self.thisDatetime = self.getDatetime()
+for i in range(num_threads):
+    worker = Thread(target=do_stuff, args=(q,))
+    worker.setDaemon(True)
+    worker.start()
 
+for x in range(100):
+    q.put(x)
 
-o = ClaseDePrueba("algun_valor")
-
-print(o.getDatetime())
-print(o.param1)
-print("{o.param1} {o.thisDatetime}".format(o=o))
+q.join()
