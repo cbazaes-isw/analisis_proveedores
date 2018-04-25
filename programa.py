@@ -1,80 +1,96 @@
 # pylint: disable=C0103
 """
-DOCSTRING
+Análisis de proveedores
 """
 
+import csv
 import json
 from datetime import datetime
-import pyodbc
+
 import requests
-from classes import proveedor
-from classes import proveedorPce
+
+import pyodbc
+from classes import proveedorBd, proveedorPce
 
 
 def main():
     """
-    DOCSTRING
+    main method
     """
-    # Configuracion
-    config_file = open("configuracion.json", "r")
+
+    print("{} Ejecutando la consulta...".format(str(datetime.now())))
+    pDict = getProvedoresBd()
+
+    # Revisando la información
+    print("{} Procesando {} proveedores...".format(str(datetime.now()), len(pDict)))
+    archivo = open(config["output_file"],"a")
+    try:
+        for rut in pDict:
+            print("{} procesando {rut:>10}... ".format(str(datetime.now()), rut=rut),end='', flush=True)
+            # Ejecutando una petición a la API de PCE para
+            # obtener más información acerca del contribuyente
+            response_pce = requests.post(
+                config["api"]["pce"]["endpoint"].format(rut_empresa=rut),
+                data=json.dumps(config["api"]["pce"]["request_body"]),
+                headers=config["api"]["pce"]["request_header"])
+
+            if not response_pce.ok:
+                print(response_pce.text)
+                continue
+
+            print("OK!")
+            pPce = proveedorPce(response_pce.json())
+            # Obtengo el registro del archivo que corresonde al 
+            # proveedor que estoy procesando en este momento
+            row = procesaProveedor(pDict[rut], pPce)
+            archivo.write(row)
+
+    except:
+        archivo.close()
+    finally:
+        archivo.close()
+
+def procesaProveedor(pBd, pPce):
+    """
+    procesaProveedores method
+    """
+    formato = ("{bd.rutProveedor};{bd.cantidad};{bd.Tramo_Ventas};{bd.Numero_Trabajadores};" +
+               "{bd.Rubro};{bd.Subrubro};{bd.Actividad_Economica};{bd.Region};{bd.Comuna};" +
+               "{bd.Calle};{bd.Numero};{bd.Bloque};{bd.Villa_Poblacion};{bd.Fecha_Inicio};" +
+               "{bd.Fecha_Termino_Giro};{bd.Tipo_Termino_Giro};{bd.Tipo_Contribuyente};" +
+               "{bd.SubTipoContribuyente};{bd.F22_C_645};{bd.F22_C_646};{bd.FechaResolucion};" +
+               "{bd.NumResolucion};{bd.MailIntercambio};{pce.CodigosActecos};" +
+               "{pce.CodigosDocumentosProduccion}\n")
+    row = formato.format(bd=pBd, pce=pPce)
+    return row
+
+def getConfiguracion():
+    config_file = open("configuracion.json")
     config = json.load(config_file)
     config_file.close()
+    return config
 
-    connection_string = config["db"]["connection_string"]
-    path_query_file = config["db"]["query_file"]
-
-    endpoint_pce = config["api"]["pce"]["endpoint"]
-    headers_pce = config["api"]["pce"]["request_header"]
-    data_pce = json.dumps(config["api"]["pce"]["request_body"])
-
+def getProvedoresBd():
     # Conexión a la base de datos y ejecución de la consulta
-    print("{} Ejecutando la consulta...".format(str(datetime.now())))
-    cnn = pyodbc.connect(connection_string)
-    query_file = open(path_query_file, "r")
+    cnn = pyodbc.connect(config["db"]["connection_string"])
+    query_file = open(config["db"]["query_file"])
     cmd = query_file.read()
     query_file.close()
     cursor = cnn.cursor()
     cursor.execute(cmd)
-
+    
     # Procesando los registros
-    print("{} Obteniendo los proveedores...".format(str(datetime.now())))
-    proveedores = [] # [0] db, [1] Contenedor, [2] RutProveedor, [3] Cantidad
+    pDict = {}
     results = cursor.fetchone()
     while results:
-        proveedores.append(proveedor(
-            rut=results[0],
-            cantidad=results[1]
-        ))
-
+        pDict[results.rutProveedor] = proveedorBd(results)
         results = cursor.fetchone()
 
     cnn.close()
 
-    # Revisando la información
-    print("{} Procesando los proveedores...".format(str(datetime.now())))
-    #for c in clientes:
-    for pBd in proveedores:
-        response_pce = requests.post(
-            endpoint_pce.format(rut_empresa=pBd.rut),
-            data=data_pce,
-            headers=headers_pce)
-        if response_pce.ok:
-            pPce = json.loads(response_pce.text, object_hook=proveedorPce)
-            procesaProveedor(pPce, pBd)
-        else:
-            print(response_pce.text)
+    return pDict
 
-def procesaProveedor(pBd, pPce):
-    """
-    DOCSTRING
-    """
-    formato = ("{rutProveedor},{cantidad},{Tramo_Ventas},{Numero_Trabajadores},{Rubro}," +
-               "{Subrubro},{Actividad_Economica},{Region},{Comuna},{Calle},{Numero},{Bloque}," +
-               "{Villa_Poblacion},{Fecha_Inicio},{Fecha_Termino_Giro},{Tipo_Termino_Giro}," +
-               "{Tipo_Contribuyente},{SubTipoContribuyente},{F22_C_645},{F22_C_646}," +
-               "{FechaResolucion},{NumResolucion},{MailIntercambio}")
-
-
-
+# Configuracion
+config = getConfiguracion()
 
 main()
