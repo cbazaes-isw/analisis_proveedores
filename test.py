@@ -1,20 +1,12 @@
-from queue import Queue
-from threading import Thread
+import pyodbc
 
-def do_stuff(q):
-    while True:
-        print(q.get())
-        q.task_done()
+cnn = pyodbc.connect("Driver={SQL Server};Server=52.201.227.21;Database=Pyme;uid=sa;pwd=S0leM0le123*")
+cmd = "select idempresa [ID empresa], codlegal [Código legal], nombre [Razón social] from empresa"
+cursor = cnn.cursor()
+cursor.execute(cmd)
 
-q = Queue(maxsize=0)
-num_threads = 10
+header = ";".join(map(lambda c: c[0], cursor.description)) + "\n"
 
-for i in range(num_threads):
-    worker = Thread(target=do_stuff, args=(q,))
-    worker.setDaemon(True)
-    worker.start()
+print(header)
 
-for x in range(100):
-    q.put(x)
-
-q.join()
+cnn.close()

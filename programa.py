@@ -5,6 +5,7 @@ Análisis de proveedores
 
 import csv
 import json
+import os
 import queue
 import threading
 from datetime import datetime
@@ -22,13 +23,16 @@ def main():
     queue_proveedores = queue.Queue(maxsize=0)
     num_threads = config["threads"]["num_threads"]
 
-    archivo = open(config["output_file"],"a")
+    # Abro/creo el archivo y escribo el encabezado de las columnas
+    archivo = open(config["output"]["filename"],"a")
+    archivo.write(config["output"]["row_format"])
+
     for i in range(num_threads):
         t = threading.Thread(target=worker, args=(queue_proveedores, archivo))
         t.setDaemon(True)
         t.start()
 
-    getProveedoresBd(queue_proveedores)
+    getProveedoresBd(queue_proveedores, archivo)
 
     queue_proveedores.join()
     archivo.close()
@@ -56,13 +60,8 @@ def procesaProveedor(p, archivo):
     pPce = proveedorPce(response_pce.json())
     # Obtengo el registro del archivo que corresonde al 
     # proveedor que estoy procesando en este momento
-    formato = ("{bd.rutProveedor};{bd.cantidad};{bd.Tramo_Ventas};{bd.Numero_Trabajadores};" +
-            "{bd.Rubro};{bd.Subrubro};{bd.Actividad_Economica};{bd.Region};{bd.Comuna};" +
-            "{bd.Calle};{bd.Numero};{bd.Bloque};{bd.Villa_Poblacion};{bd.Fecha_Inicio};" +
-            "{bd.Fecha_Termino_Giro};{bd.Tipo_Termino_Giro};{bd.Tipo_Contribuyente};" +
-            "{bd.SubTipoContribuyente};{bd.F22_C_645};{bd.F22_C_646};{bd.FechaResolucion};" +
-            "{bd.NumResolucion};{bd.MailIntercambio};{pce.CodigosActecos};" +
-            "{pce.CodigosDocumentosProduccion}\n")
+    formato = config["output"]["row_format"]
+    
     row = formato.format(bd=p, pce=pPce)
     archivo.write(row)
 
@@ -72,7 +71,7 @@ def getConfiguracion():
     config_file.close()
     return config
 
-def getProveedoresBd(q):
+def getProveedoresBd(q, f):
     # Conexión a la base de datos y ejecución de la consulta
     print("\n{} Ejecutando la consulta...".format(str(datetime.now())), end="")
     cnn = pyodbc.connect(config["db"]["connection_string"])
