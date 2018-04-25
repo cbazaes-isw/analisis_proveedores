@@ -1,4 +1,5 @@
 {
+    "output_file":"archivo_salida.csv",
     "db":
     {
         "connection_string":"Driver={SQL Server};Server=52.201.227.21;Database=Pyme;uid=sa;pwd=S0leM0le123*",
