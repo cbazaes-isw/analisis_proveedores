@@ -1,4 +1,5 @@
 {
+    "output_file":"archivo_salida.csv",
     "db":
     {
         "connection_string":"Driver={SQL Server};Server=52.201.227.21;Database=Pyme;uid=sa;pwd=S0leM0le123*",
@@ -35,6 +36,44 @@
                 "Data":"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",
                 "Contrasenna":"1234"
             }
+        }
+    },
+    "file_struct":
+    {
+        "columns":
+        {
+            "query":
+            [
+                "rutProveedor",
+                "cantidad",
+                "Tramo Ventas",
+                "Numero Trabajadores",
+                "Rubro",
+                "Subrubro",
+                "Actividad Economica",
+                "Region",
+                "Comuna",
+                "Calle",
+                "Numero",
+                "Bloque",
+                "Villa/Poblacion",
+                "Fecha Inicio",
+                "Fecha Termino Giro",
+                "Tipo Termino Giro",
+                "Tipo Contribuyente",
+                "SubTipoContribuyente",
+                "F22 C 645",
+                "F22 C 646",
+                "FechaResolucion",
+                "NumResolucion",
+                "MailIntercambio"
+            ],
+            "api":
+            [
+                {
+                    "":""
+                }
+            ]
         }
     }
 }
