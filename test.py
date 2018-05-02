@@ -1,17 +1,12 @@
-from datetime import datetime
+import pyodbc
 
-class ClaseDePrueba(object):
+cnn = pyodbc.connect("Driver={SQL Server};Server=52.201.227.21;Database=Pyme;uid=sa;pwd=S0leM0le123*")
+cmd = "select idempresa [ID empresa], codlegal [Código legal], nombre [Razón social] from empresa"
+cursor = cnn.cursor()
+cursor.execute(cmd)
 
-    def getDatetime(self):
-        return datetime.now()
+header = ";".join(map(lambda c: c[0], cursor.description)) + "\n"
 
-    def __init__(self, param1):
-        self.param1 = param1
-        self.thisDatetime = self.getDatetime()
+print(header)
 
-
-o = ClaseDePrueba("algun_valor")
-
-print(o.getDatetime())
-print(o.param1)
-print("{o.param1} {o.thisDatetime}".format(o=o))
+cnn.close()

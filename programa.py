@@ -5,6 +5,9 @@ Análisis de proveedores
 
 import csv
 import json
+import os
+import queue
+import threading
 from datetime import datetime
 
 import requests
@@ -17,52 +20,50 @@ def main():
     """
     main method
     """
+    queue_proveedores = queue.Queue(maxsize=0)
+    num_threads = config["threads"]["num_threads"]
 
-    print("{} Ejecutando la consulta...".format(str(datetime.now())))
-    pDict = getProvedoresBd()
+    # Abro/creo el archivo y escribo el encabezado de las columnas
+    archivo = open(config["output"]["filename"],"a")
+    archivo.write(config["output"]["row_format"])
 
-    # Revisando la información
-    print("{} Procesando {} proveedores...".format(str(datetime.now()), len(pDict)))
-    archivo = open(config["output_file"],"a")
-    try:
-        for rut in pDict:
-            print("{} procesando {rut:>10}... ".format(str(datetime.now()), rut=rut),end='', flush=True)
-            # Ejecutando una petición a la API de PCE para
-            # obtener más información acerca del contribuyente
-            response_pce = requests.post(
-                config["api"]["pce"]["endpoint"].format(rut_empresa=rut),
-                data=json.dumps(config["api"]["pce"]["request_body"]),
-                headers=config["api"]["pce"]["request_header"])
+    for i in range(num_threads):
+        t = threading.Thread(target=worker, args=(queue_proveedores, archivo))
+        t.setDaemon(True)
+        t.start()
 
-            if not response_pce.ok:
-                print(response_pce.text)
-                continue
+    getProveedoresBd(queue_proveedores, archivo)
 
-            print("OK!")
-            pPce = proveedorPce(response_pce.json())
-            # Obtengo el registro del archivo que corresonde al 
-            # proveedor que estoy procesando en este momento
-            row = procesaProveedor(pDict[rut], pPce)
-            archivo.write(row)
+    queue_proveedores.join()
+    archivo.close()
 
-    except:
-        archivo.close()
-    finally:
-        archivo.close()
+def worker(q, archivo):
+    while True:
+        pBd = q.get()
+        procesaProveedor(pBd, archivo)
+        q.task_done()
 
-def procesaProveedor(pBd, pPce):
-    """
-    procesaProveedores method
-    """
-    formato = ("{bd.rutProveedor};{bd.cantidad};{bd.Tramo_Ventas};{bd.Numero_Trabajadores};" +
-               "{bd.Rubro};{bd.Subrubro};{bd.Actividad_Economica};{bd.Region};{bd.Comuna};" +
-               "{bd.Calle};{bd.Numero};{bd.Bloque};{bd.Villa_Poblacion};{bd.Fecha_Inicio};" +
-               "{bd.Fecha_Termino_Giro};{bd.Tipo_Termino_Giro};{bd.Tipo_Contribuyente};" +
-               "{bd.SubTipoContribuyente};{bd.F22_C_645};{bd.F22_C_646};{bd.FechaResolucion};" +
-               "{bd.NumResolucion};{bd.MailIntercambio};{pce.CodigosActecos};" +
-               "{pce.CodigosDocumentosProduccion}\n")
-    row = formato.format(bd=pBd, pce=pPce)
-    return row
+def procesaProveedor(p, archivo):
+    # Ejecutando una petición a la API de PCE para
+    # obtener más información acerca del contribuyente
+    response_pce = requests.post(
+        config["api"]["pce"]["endpoint"].format(rut_empresa=p.rutProveedor),
+        data=json.dumps(config["api"]["pce"]["request_body"]),
+        headers=config["api"]["pce"]["request_header"])
+
+    if not response_pce.ok:
+        print("\n{} Proveedor {rut:>11}: {} ".format(str(datetime.now()), response_pce.text, rut=p.rutProveedor), end="")
+        return
+    
+    print("\n{} Proveedor {rut:>11}... Ok!".format(str(datetime.now()), rut=p.rutProveedor), end="")
+
+    pPce = proveedorPce(response_pce.json())
+    # Obtengo el registro del archivo que corresonde al 
+    # proveedor que estoy procesando en este momento
+    formato = config["output"]["row_format"]
+    
+    row = formato.format(bd=p, pce=pPce)
+    archivo.write(row)
 
 def getConfiguracion():
     config_file = open("configuracion.json")
@@ -70,8 +71,9 @@ def getConfiguracion():
     config_file.close()
     return config
 
-def getProvedoresBd():
+def getProveedoresBd(q, f):
     # Conexión a la base de datos y ejecución de la consulta
+    print("\n{} Ejecutando la consulta...".format(str(datetime.now())), end="")
     cnn = pyodbc.connect(config["db"]["connection_string"])
     query_file = open(config["db"]["query_file"])
     cmd = query_file.read()
@@ -80,15 +82,13 @@ def getProvedoresBd():
     cursor.execute(cmd)
     
     # Procesando los registros
-    pDict = {}
+    print("\n{} Recuperando resultados...".format(str(datetime.now())), end="")
     results = cursor.fetchone()
     while results:
-        pDict[results.rutProveedor] = proveedorBd(results)
+        q.put(proveedorBd(results))
         results = cursor.fetchone()
 
     cnn.close()
-
-    return pDict
 
 # Configuracion
 config = getConfiguracion()
