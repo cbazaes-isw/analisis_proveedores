@@ -1,6 +1,6 @@
 from functools import reduce
 from operator import attrgetter
-
+from datetime import datetime
 
 class ActecoPce:
     def __init__(self, dict):
@@ -29,19 +29,39 @@ class TipoDocumentoPce:
 
 class proveedorPce:
     def __init__(self, dict):
-        self.RUT = dict["RUT"]
-        self.RazonSocial = dict["RazonSocial"]
-        self.Giro = dict["Giro"]
-        self.Direccion = dict["Direccion"]
-        self.DireccionRegional = dict["DireccionRegional"]
-        self.NumeroResolucion = dict["NumeroResolucion"]
-        self.FechaResolucion = dict["FechaResolucion"]
-        self.Actecos = list(map(lambda x: ActecoPce(x), dict["Actecos"]))
-        self.DocumentosHomo = list(map(lambda x: TipoDocumentoPce(x), dict["DocumentosHomo"]))
-        self.DocumentosProd = list(map(lambda x: TipoDocumentoPce(x), dict["DocumentosProd"]))
-        self.CodigosActecos = self.getCodigosActecos()
-        self.CodigosDocumentosProduccion = self.getCodigosDocumentosProduccion()
-        self.CodigosDocumentosCertificacion = self.getCodigosDocumentosCertificacion()
+        if len(dict) > 0:
+            self.RUT = dict["RUT"]
+            self.RazonSocial = dict["RazonSocial"]
+            self.Giro = dict["Giro"]
+            self.Direccion = dict["Direccion"]
+            self.DireccionRegional = dict["DireccionRegional"]
+            self.NumeroResolucion = dict["NumeroResolucion"]
+            if dict["FechaResolucion"]:
+                self.FechaResolucion = datetime.strptime(dict["FechaResolucion"], "%d-%m-%Y")
+            else:
+                self.FechaResolucion = None
+            self.Actecos = list(map(lambda x: ActecoPce(x), dict["Actecos"]))
+            self.DocumentosHomo = list(map(lambda x: TipoDocumentoPce(x), dict["DocumentosHomo"]))
+            self.DocumentosProd = list(map(lambda x: TipoDocumentoPce(x), dict["DocumentosProd"]))
+            self.CodigosActecos = self.getCodigosActecos()
+            self.CodigosDocumentosProduccion = self.getCodigosDocumentosProduccion()
+            self.CodigosDocumentosCertificacion = self.getCodigosDocumentosCertificacion()
+            self.Mensaje = None
+        else:
+            self.RUT = None
+            self.RazonSocial = None
+            self.Giro = None
+            self.Direccion = None
+            self.DireccionRegional = None
+            self.NumeroResolucion = None
+            self.FechaResolucion = None
+            self.Actecos = []
+            self.DocumentosHomo = []
+            self.DocumentosProd = []
+            self.CodigosActecos = None
+            self.CodigosDocumentosProduccion = None
+            self.CodigosDocumentosCertificacion = None
+            self.Mensaje = None
 
     def __repr__(self):
         return "{}: {} {}".format(self.__class__.__name__, self.RUT, self.RazonSocial)

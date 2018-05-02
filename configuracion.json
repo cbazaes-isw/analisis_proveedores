@@ -6,12 +6,14 @@
     },
     "threads":
     {
-        "num_threads":100
+        "num_threads":10,
+        "sec_sleep":1
     },
     "db":
     {
-        "connection_string":"Driver={SQL Server};Server=52.201.227.21;Database=Pyme;uid=sa;pwd=S0leM0le123*",
-        "query_file":"query.sql"
+        "connection_string":"Driver={SQL Server};Server=52.201.227.21;Database=analisis_proveedores;uid=sa;pwd=S0leM0le123*",
+        "query_file":"query.sql",
+        "update_format":"update contribuyente_API_PCE WITH (ROWLOCK) set razon_social = ?, giro = ?, direccion = ?, direccion_regional = ?, numero_resolucion = ?, fecha_resolucion = ?, actecos = ?, tipos_documentos = ?, mensaje = ? where rut = ?"
     },
     "api":
     {
