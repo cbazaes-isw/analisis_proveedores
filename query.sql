@@ -1,1 +1,1 @@
-select rut from contribuyente_API_PCE where mensaje is null
+select * from contribuyente_API_PCE where isnull(mensaje,'OK') <> 'OK' and mensaje not like 'ERROR_GENERAL:El rut % no es valido.'

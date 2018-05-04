@@ -2,12 +2,13 @@
 """
 Análisis de proveedores
 """
-import time
 import csv
 import json
 import os
 import queue
+import sys
 import threading
+import time
 from datetime import datetime
 
 import requests
@@ -41,31 +42,36 @@ def worker(q, cnn):
     while True:
         rut = q.get()
         procesaRUT(rut, cnn)
-        # time.sleep(config["threads"]["sec_sleep"])
+        time.sleep(config["threads"]["sec_sleep"])
         q.task_done()
 
 def procesaRUT(rut, cnn):
     # Ejecutando una petición a la API de PCE para
     # obtener más información acerca del contribuyente
-    response_pce = requests.post(
-        config["api"]["pce"]["endpoint"].format(rut_empresa=rut),
-        data=json.dumps(config["api"]["pce"]["request_body"]),
-        headers=config["api"]["pce"]["request_header"])
+    try:
+        response_pce = requests.post(
+            config["api"]["pce"]["endpoint"].format(rut_empresa=rut),
+            data=json.dumps(config["api"]["pce"]["request_body"]),
+            headers=config["api"]["pce"]["request_header"])
 
-    if response_pce.ok:
-        print("\n{} Proveedor {rut:>11}... Ok!".format(str(datetime.now()), rut=rut), end="")
-        pPce = proveedorPce(response_pce.json())
-        pPce.Mensaje = "OK"
-    else:
-        print("\n{} Proveedor {rut:>11}: {} ".format(str(datetime.now()), response_pce.text, rut=rut), end="")
-        pPce = proveedorPce({})
-        pPce.Mensaje = response_pce.text
-    
-    cursor = cnn.cursor()
-    cursor.execute(config["db"]["update_format"], pPce.RazonSocial, pPce.Giro, pPce.Direccion,
-        pPce.DireccionRegional, pPce.NumeroResolucion, pPce.FechaResolucion, pPce.CodigosActecos,
-        pPce.CodigosDocumentosProduccion, pPce.Mensaje, rut)
-    cnn.commit()    
+        if response_pce.ok:
+            print("\n{} Proveedor {rut:>11}... Ok!".format(str(datetime.now()), rut=rut), end="")
+            pPce = proveedorPce(response_pce.json())
+            pPce.Mensaje = "OK"
+        else:
+            print("\n{} Proveedor {rut:>11}: {} ".format(str(datetime.now()), response_pce.text, rut=rut), end="")
+            pPce = proveedorPce({})
+            pPce.Mensaje = response_pce.text
+        
+        cursor = cnn.cursor()
+        cursor.execute(config["db"]["update_format"], pPce.RazonSocial, pPce.Giro, pPce.Direccion,
+            pPce.DireccionRegional, pPce.NumeroResolucion, pPce.FechaResolucion, pPce.CodigosActecos,
+            pPce.CodigosDocumentosProduccion, pPce.Mensaje, rut)
+        cnn.commit()
+    except (pyodbc.DataError, pyodbc.Error) as e:
+        print("\n{} Proveedor {rut:>11}... ERROR: {clase} - {error}".format(str(datetime.now()), clase=sys.exc_info()[0], error=e, rut=rut), end="")
+    except:
+        print("\n{} Proveedor {rut:>11}... ERROR: {clase}".format(str(datetime.now()), clase=sys.exc_info()[0], rut=rut), end="")
 
 def getConfiguracion():
     config_file = open("configuracion.json")
